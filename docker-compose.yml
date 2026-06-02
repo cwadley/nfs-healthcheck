@@ -1,0 +1,17 @@
+services:
+  nfs-healthcheck:
+    image: cwadley/nfs-healthcheck:latest
+    volumes:
+      # Set the host path by exporting the NFS_HOST_PATH variable.
+      # If NFS_HOST_PATH contains whitespace, quote it in .env
+      # (e.g. NFS_HOST_PATH="/mnt/my pool") so Compose interpolates it
+      # as a single path rather than splitting the volume mapping.
+      - ${NFS_HOST_PATH:-/mnt/nfs}:/mnt/nfs:ro,rslave
+    healthcheck:
+      test: ["CMD", "/usr/local/bin/healthcheck.sh"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      # Override by exporting START_PERIOD (e.g. START_PERIOD=5m) or setting it
+      # in a .env file. Must be a Go duration string (s/m/h). Defaults to 30s.
+      start_period: ${START_PERIOD:-30s}
