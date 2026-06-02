@@ -7,6 +7,10 @@ services:
       # (e.g. NFS_HOST_PATH="/mnt/my pool") so Compose interpolates it
       # as a single path rather than splitting the volume mapping.
       - ${NFS_HOST_PATH:-/mnt/nfs}:/mnt/nfs:ro,rslave
+    environment:
+      # Set DEBUG=1 (or export DEBUG) to emit verbose per-probe diagnostics to
+      # the container's health log. Off by default to avoid flooding logs.
+      DEBUG: ${DEBUG:-}
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]
       interval: 5s

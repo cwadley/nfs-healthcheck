@@ -55,6 +55,7 @@ project root — no rebuild required:
 | --------------- | ------------------------ | ------------------------------------------------------------------ |
 | `NFS_HOST_PATH` | `/mnt/nfs`               | Host path of the NFS mount to watch.                               |
 | `START_PERIOD`  | `30s`                    | Grace window before failed probes count. Go duration (`s`/`m`/`h`).|
+| `DEBUG`         | _(off)_                  | Set to `1`/`true`/`yes` for verbose per-probe diagnostics.          |
 
 ```sh
 # Inline
@@ -74,6 +75,20 @@ START_PERIOD=5m
 If the NFS mount may take minutes to come up, raise `START_PERIOD` to cover
 that window — otherwise the container may briefly report `unhealthy` before it
 recovers (it still flips back to `healthy` once the mount appears).
+
+#### Debugging
+
+The probe is quiet by default. Set `DEBUG=1` to log, on every probe, the path
+being checked, whether it exists, the detected filesystem type, and any
+`/proc/mounts` entries that reference it — useful for diagnosing mount
+propagation issues (e.g. an `rslave` bind that never received the host mount):
+
+```sh
+DEBUG=1 docker compose up -d
+docker inspect --format '{{range .State.Health.Log}}{{.Output}}{{end}}' <container>
+```
+
+Turn it back off once you're done, since it logs on every interval.
 
 ## Using it as a dependency gate
 
